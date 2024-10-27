@@ -59,8 +59,17 @@ image565:
     li   a2,  6 # height
     jal  ra, rgb888_to_rgb565
 
+    la a0, image565
+    la a3, image888_back
+    li ai, 19
+    li a2, 6
+    jal ra, rgb565_to_rgb888
+    
+    
     addi a7, zero, 10 
     ecall
+
+    
 
 # ----------------------------------------
 # Subroutine showImage
@@ -97,10 +106,37 @@ outShowRowLoop:
 
 # ----------------------------------------
 
-rgb888_to_rgb565:
+
 # ----------------------------------------
 # Write your code here.
 # You may move the "return" instruction (jalr zero, ra, 0).
+    
+rgb888_to_rgb565:
+    add  t0, zero, zero 
+rowLoop:
+    bge  t0, a2, outRowLoop
+    add  t1, zero, zero 
+columnLoop:
+    bge  t1, a1, outColumnLoop
+    lbu  t2, 0(a0)   # r
+    lbu  t3, 1(a0)   # g
+    lbu  t4, 2(a0)   # b
+    andi t2, t2, 0xf8   
+    slli t2, t2, 8      
+    andi t3, t3, 0xfc   
+    slli t3, t3, 3      
+    srli t4, t4, 3      
+    or   t2, t2, t3
+    or   t2, t2, t4
+    sh   t2, 0(a3)   
+    addi a0, a0, 3   
+    addi a3, a3, 2   
+    addi t1, t1, 1
+    j    columnLoop
+outColumnLoop:
+    addi t0, t0, 1
+    j    rowLoop
+outRowLoop:
     jalr zero, ra, 0
 
 
